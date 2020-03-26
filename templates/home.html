@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <style type='text/css'>
+
+  </style>
+
+
+  <body>
+    <div class="header">
+      <h2>Finstagram</h2>
+      <input type="text" placeholder="Search a user...">
+    </div>
+
+    <div class="imageFeed">
+      {% for photo in photos %}
+
+        <div class="photoComponent">
+          <div class="photoInfo">
+            <h3>{{imag}}</h3>
+          </div>
+          <img src="/image/{{image.filePath}}" alt="">
+        </div>
+
+      {% endfor %}
+    </div>
+
+    <div class="groups">
+
+    </div>
+
+  </body>
+</html>
