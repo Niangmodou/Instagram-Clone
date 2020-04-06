@@ -2,35 +2,97 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>Finstagram</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
   <style type='text/css'>
+    *{
+      background-color: #292929;
+      color: white;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    .pageContainer {
+      display: grid;
+      border-style: solid;
+      border-color: red;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(12, 1fr);
+      grid-gap: 10px;
+      width: 100vw;
+      height: 100vh;
+    }
+    .header {
+      border-style: solid;
+      border-color: blue;
+      grid-column: 1/ span 12;
+      grid-row: 1/span 2;
+    }
+    .imageFeed {
+      border-style: solid;
+      border-color: yellow;
+      grid-column: 2 / span 5;
+      grid-row: 3 / 12;
+    }
+    .groups {
+      border-style: solid;
+      border-color: violet;
+      grid-column: 8 / span 4;
+      grid-row: 3 /span 5;
+    }
+    .post {
+      border-style: solid;
+      border-color: aqua;
+      grid-column: 8/ span 4;
+      grid-row: 8/ span 4;
+    }
 
   </style>
 
-
   <body>
-    <div class="header">
-      <h2>Finstagram</h2>
-      <input type="text" placeholder="Search a user...">
-    </div>
 
-    <div class="imageFeed">
-      {% for photo in photos %}
+    <div class="pageContainer">
+      <div class="header">
+      <h2 class="welcome">Welcome, {{username}}</h2>
+      </div>
+      <div class="imageFeed">
 
-        <div class="photoComponent">
-          <div class="photoInfo">
-            <h3>{{imag}}</h3>
+        {% if images %}
+          {% for image in images%}
+          <div class="photoComponent">
+            <h3>@{{image.username}} - {{image.firstName}}{{image.lastName}}</h3>
+            <img src="{{image.filePath}}">
+            <h4>{{image.caption}}</h4>
+            <h4>{{image.postingDate}}</h4>
+            <h4><b>Tagged in:</b>  {% for user in tagged %}
+                            user.username,
+                            {% endfor %}
+            </h4>
+            <h4><b>Reacted To:</b> {% for user in reacted_to%}
+                            user.username: user.comment,
+                            {% endfor %}
+            </h4>
           </div>
-          <img src="/image/{{image.filePath}}" alt="">
-        </div>
+          {% endfor %}
+      {% else %}
+        <h3>Images</h3>
+        <h3>You do not have any images :( Follow more users</h3>
+      {% endif %}
 
-      {% endfor %}
+      </div>
+      <div class="groups">
+        <h3>Groups</h3>
+
+      </div>
+      <div class="post">
+        <h3>Post a Photo</h3>
+      </div>
     </div>
-
-    <div class="groups">
-
-    </div>
-
   </body>
+
 </html>

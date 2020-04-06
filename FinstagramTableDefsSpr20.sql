@@ -1,4 +1,5 @@
-﻿CREATE TABLE Person (
+
+CREATE TABLE Person (
         username VARCHAR(32),
         password VARCHAR(64),
         firstName VARCHAR(32),

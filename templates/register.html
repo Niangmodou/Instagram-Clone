@@ -1,14 +1,50 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
   <head>
     <meta charset="utf-8">
     <title>Finstagram</title>
   </head>
-  <body>
-    <form action="/registerAuth" method="POST">
-      {% if error %}
 
-      {% endif %}
-    </form>
+  <style media="screen">
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+        background: #ebf5fc;
+      }
+  </style>
+
+  <body>
+    <div class="header">
+      <h1 class="title">Finstagram</h1>
+
+      <div class="homeButton">
+        <a href="/">Home</a>
+      </div>
+    </div>
+
+    <div class="form">
+      <form action="/registerAuth" method="POST">
+        <h2>Register</h2>
+
+        First Name:
+        <input type="text" name="firstName" placeholder="First Name... " required> <br>
+        Last Name:
+        <input type="text" name="lastName" placeholder="Last Name... " required> <br>
+        Username:
+        <input type="text" name="username" placeholder="Username... " required> <br>
+        Email:
+        <input type="text" name="email" placeholder="Email... " required> <br>
+        Password:
+        <input type="text" name="password" placeholder="Password... " required> <br>
+        <input type="submit" value = Register /> <br>
+        {% if error %}
+            <p class="error">An error has occured: {{error}}</p>
+        {% endif %}
+      </form>
+
+    </div>
   </body>
 </html>
