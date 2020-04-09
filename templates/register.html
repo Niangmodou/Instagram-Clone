@@ -12,7 +12,8 @@
         padding: 0;
         box-sizing: border-box;
         font-family: sans-serif;
-        background: #ebf5fc;
+        background-color: #292929;
+        color: white;
       }
   </style>
 
@@ -38,7 +39,7 @@
         Email:
         <input type="text" name="email" placeholder="Email... " required> <br>
         Password:
-        <input type="text" name="password" placeholder="Password... " required> <br>
+        <input type="password" name="password" placeholder="Password... " required> <br>
         <input type="submit" value = Register /> <br>
         {% if error %}
             <p class="error">An error has occured: {{error}}</p>

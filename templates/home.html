@@ -43,7 +43,13 @@
       border-style: solid;
       border-color: violet;
       grid-column: 8 / span 4;
-      grid-row: 3 /span 5;
+      grid-row: 3 /span 3;
+    }
+    .followRequests{
+      border-style: solid;
+      border-color: #ff3399;
+      grid-column: 8 / span 4;
+      grid-row: 6 /span 2;
     }
     .post {
       border-style: solid;
@@ -52,45 +58,95 @@
       grid-row: 8/ span 4;
     }
 
-  </style>
+    .signOut{
+      color: white;
+      text-align: right;
 
+    }
+
+  </style>
   <body>
 
     <div class="pageContainer">
       <div class="header">
       <h2 class="welcome">Welcome, {{username}}</h2>
+      <a href="/signOut">Logout</a>
       </div>
       <div class="imageFeed">
-
+        <h4>Images</h4>
         {% if images %}
           {% for image in images%}
           <div class="photoComponent">
-            <h3>@{{image.username}} - {{image.firstName}}{{image.lastName}}</h3>
-            <img src="{{image.filePath}}">
-            <h4>{{image.caption}}</h4>
-            <h4>{{image.postingDate}}</h4>
-            <h4><b>Tagged in:</b>  {% for user in tagged %}
-                            user.username,
-                            {% endfor %}
-            </h4>
-            <h4><b>Reacted To:</b> {% for user in reacted_to%}
-                            user.username: user.comment,
-                            {% endfor %}
+            <h3>@{{image.poster}} - {{image.firstName}} {{image.lastName}}</h3>
+            <img src="{{image.filePath}}" alt="Photo Id: {{image.pId}}"  width="150" height="200">
+            <h6>{{image.caption}}</h6>
+            <h6>{{image.postingDate}}</h6>
+            <h5><b>Tagged in:</b>  {% for user in tagged %}
+                                    {{user.username}},
+                                    {% endfor %}
+            </h5>
+            <h5><b>Reacted To:</b> {% for user in reacted_to%}
+                                    {{user.username}}: {{user.comment}},
+                                    {% endfor %}
+            </h5>
+            <h6>{{image.pId}}</h6>
+
             </h4>
           </div>
           {% endfor %}
       {% else %}
-        <h3>Images</h3>
-        <h3>You do not have any images :( Follow more users</h3>
+        <h5>You do not have any images :( Follow more users</h5>
       {% endif %}
 
       </div>
+
       <div class="groups">
-        <h3>Groups</h3>
+        <h4>Groups</h4>
+
+        <form class="" action="/createGroup">
+          Group Name:
+          <input type="text" name="groupName" placeholder="Enter Group Name..." required> <br>
+          Description:
+          <input type="text" name="groupDescription" placeholder="Enter Description..."required> <br>
+          <input type="submit" value = Create>
+        </form>
 
       </div>
+
+      <div class="followRequests">
+        <h4>Follow </h4>
+        <form class="" action="followUser" method="post">
+          <input type="text" name="followee" placeholder="Enter a user to follow">
+          <input type="submit" name="" value="Follow">
+        </form>
+        {% for request in requests%}
+          <div class="requestComponent">
+            <form class="" action="/manageRequest" method="post">
+              <h5>@ {{request.follower}}</h5> <br>
+              Accept Follow Request:
+              <input type="radio" name="followRequest" value="true">
+              <input type="radio" name="followRequest" value="false">
+              <input type="submit" name="followRequest" value="submit">
+            </form>
+            <br>
+          </div>
+        {% endfor %}
+      </div>
+
       <div class="post">
-        <h3>Post a Photo</h3>
+        <h4>Post a Photo</h4>
+
+        <form action="/postPhoto" method="POST">
+          Location:
+          <input type="text" name="location" placeholder="Enter Location..." required> <br>
+          Caption:
+          <input type="text" name="caption" placeholder="Enter Caption..." required> <br>
+          Share with all Followers: <br>
+          <input type="radio" name="allFollowers" value="true" required> True
+          <input type="radio" name="allFollowers" value="false"> False<br>
+          <input type="file" name="photo" required> <br>
+          <input type="submit" value = Post /> <br>
+        </form>
       </div>
     </div>
   </body>

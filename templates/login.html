@@ -11,8 +11,8 @@
           margin: 0;
           padding: 0;
           box-sizing: border-box;
-          font-family: sans-serif;
-          background: #ebf5fc;
+          background-color: #292929;
+          color: white;
         }
 
   </style>
@@ -34,7 +34,7 @@
         Username:
         <input type="text" name="username" placeholder="Username... " required> <br>
         Password:
-        <input type="text" name="password" placeholder="Password... " required> <br>
+        <input type="password" name="password" placeholder="Password... " required> <br>
         <input type="submit" value = Login />
         {% if error %}
             <p class="error">{{error}}</p>
