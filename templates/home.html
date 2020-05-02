@@ -31,25 +31,31 @@
       border-style: solid;
       border-color: blue;
       grid-column: 1/ span 12;
-      grid-row: 1/span 2;
+      grid-row: 1/span 1;
     }
     .imageFeed {
       border-style: solid;
       border-color: yellow;
       grid-column: 2 / span 5;
-      grid-row: 3 / 12;
+      grid-row: 2 / 12;
     }
-    .groups {
+    .followRequests {
       border-style: solid;
       border-color: violet;
       grid-column: 8 / span 4;
       grid-row: 3 /span 3;
     }
-    .followRequests{
+    .groups{
       border-style: solid;
       border-color: #ff3399;
       grid-column: 8 / span 4;
       grid-row: 6 /span 2;
+    }
+    .unfollow{
+      border-style: solid;
+      border-color: green;
+      grid-column: 8 / span 4;
+      grid-row: 2 /span 1;
     }
     .post {
       border-style: solid;
@@ -61,7 +67,6 @@
     .signOut{
       color: white;
       text-align: right;
-
     }
 
   </style>
@@ -72,6 +77,7 @@
       <h2 class="welcome">Welcome, {{username}}</h2>
       <a href="/signOut">Logout</a>
       </div>
+
       <div class="imageFeed">
         <h4>Images</h4>
         {% if images %}
@@ -97,13 +103,17 @@
       {% else %}
         <h5>You do not have any images :( Follow more users</h5>
       {% endif %}
+      </div>
 
+      <div class="unfollow">
+        <form class="" action="/unfollow" method="POST">
+          <input type="text" name="followee" placeholder="Enter a user to unfollow">
+          <input type="submit" value="Unfollow">
+        </form>
       </div>
 
       <div class="groups">
-        <h4>Groups</h4>
-
-        <form class="" action="/createGroup">
+        <form class="" action="/createGroup" method="POST">
           Group Name:
           <input type="text" name="groupName" placeholder="Enter Group Name..." required> <br>
           Description:
@@ -114,23 +124,25 @@
       </div>
 
       <div class="followRequests">
-        <h4>Follow </h4>
-        <form class="" action="followUser" method="post">
+        <form class="" action="/followUser" method="POST">
           <input type="text" name="followee" placeholder="Enter a user to follow">
-          <input type="submit" name="" value="Follow">
+          <input type="submit" value="Follow">
         </form>
-        {% for request in requests%}
-          <div class="requestComponent">
-            <form class="" action="/manageRequest" method="post">
-              <h5>@ {{request.follower}}</h5> <br>
-              Accept Follow Request:
-              <input type="radio" name="followRequest" value="true">
-              <input type="radio" name="followRequest" value="false">
-              <input type="submit" name="followRequest" value="submit">
-            </form>
-            <br>
-          </div>
-        {% endfor %}
+
+        <form action="/followRequests" method="GET">
+          {% for request in requests%}
+            <div class="requestComponent">
+              <form class="" action="/manageRequests" method="post">
+                <h5>@ {{request.follower}}</h5> <br>
+                Accept Follow Request:
+                <input type="radio" name="followRequest" value="true">
+                <input type="radio" name="followRequest" value="false">
+                <input type="submit" name="followRequest" value="submit">
+              </form>
+              <br>
+            </div>
+          {% endfor %}
+        </form>
       </div>
 
       <div class="post">
@@ -144,11 +156,12 @@
           Share with all Followers: <br>
           <input type="radio" name="allFollowers" value="true" required> True
           <input type="radio" name="allFollowers" value="false"> False<br>
-          <input type="file" name="photo" required> <br>
+          <input type="file" name="photo" accept= "image/*/" required> <br>
           <input type="submit" value = Post /> <br>
         </form>
       </div>
     </div>
+
   </body>
 
 </html>

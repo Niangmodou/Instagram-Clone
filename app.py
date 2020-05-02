@@ -161,6 +161,7 @@ def home():
              UNION (SELECT * FROM userPhotos) ORDER BY postingDate DESC'
     cursor.execute(query)
 
+    #Query to get the Person information
     query = 'SELECT * FROM Person INNER JOIN ex ON ex.poster = Person.username'
     cursor.execute(query)
 
@@ -187,25 +188,24 @@ def home():
                            tagged= tagged,
                            reacted_to = reacted)
 
-
-
 #------------------------------------------------------------------------------------------------------------------------------------------
 
 #Define route to post a photo (Required Feature 3)
 @app.route('/postPhoto', methods=['POST'])
 def post_photo():
     cursor = connection.cursor()
-    if(request.files and request.form):
+    if(request.files):
         poster = session['username']
         #Retrieving photo information
 
         #Retrieving the path of the folder
-        IMAGES_DIR = os.path.join(os.getcwd(), "Photos")
-
-        file = request.files.get('photo')
-        name = request.form['location']
-        filePath = os.path.join(IMAGES_DIR,name)
-        file.save(filePath)
+        FOLDER = os.path.join(os.getcwd(), 'Photos')
+        file = request.files.get('photo','')
+        name = file.filename
+        print("Checkpoint 1")
+        filepath = os.path.join(FOLDER,name)
+        file.save(filepath)
+        print("Checkpoint 2")
         all_followers = request.form['allFollowers']
         caption = request.form['caption']
         #Retrieving Timestamp
@@ -218,6 +218,7 @@ def post_photo():
         query = 'INSERT INTO Photo (postingDate,filePath,allFollowers,caption,poster) \
                  VALUES (%s,%s,%s,%s,%s,%s)'
         cursor.execute(query,(timestamp,filePath,allFollowers,caption,poster))
+        print("Checkpoint 3")
         cursor.close()
         return redirect(url_for('home'))
     else:
@@ -238,7 +239,7 @@ def follow():
             error = 'You have already requested to follow this user'
             return render_template('home.html',error = error)
         else:
-            query = 'INSERT INTO Follows(follower,followee,followStatus)VALUES(%s,%s,%s)'
+            query = 'INSERT INTO Follow(follower,followee,followStatus)VALUES(%s,%s,%s)'
             cursor.execute(query,(follower,followee,0))
             cursor.close()
             return redirect('/home')
@@ -254,11 +255,11 @@ def follow_requests():
         follower = session['username']
 
         #Query retrieves all the follow requests that have not been accepted
-        query = 'SELECT * FROM Follow WHERE follower=%s AND followStatus=NULL'
+        query = 'SELECT * FROM Follow WHERE follower=%s AND followStatus=0'
         cursor.execute(query,(follower))
         data = cursor.fetchall()
         cursor.close()
-
+        print(data)
         return render_template('home.html',requests = data)
     else:
         error = 'Unable to retrieve follow requests'
@@ -275,7 +276,7 @@ def manage_requests():
 
         if(status == 'true'):
             query = 'UPDATE Follow SET followStatus=True WHERE follower=%s AND followee=%s'
-            cursor.execute(query,(folloert,followee))
+            cursor.execute(query,(follower,followee))
             cursor.close()
         else:
             query = 'DELETE FROM Follow WHERE follower=%s AND followee=%s'
@@ -286,10 +287,10 @@ def manage_requests():
         error = 'Unable to manage requests'
         return render_template('home.html',error = error)
 
-def follows_user(follower,followee):
+def follow_user(follower,followee):
     cursor = connection.cursor()
     query = 'SELECT * FROM Follow WHERE follower=%s and followee=%s'
-    cursor.execute()
+    cursor.execute(query,(follower,followee))
     data = cursor.fetchone()
     cursor.close()
     if(data):
@@ -297,7 +298,7 @@ def follows_user(follower,followee):
     else:
         return False
 
-#Define route to create a friend group (Required Feature 5)
+#Define route to create a friend group (Required Feature 5) COMPLETED
 @app.route('/createGroup', methods=['POST'])
 def create_group():
     if(request.form):
@@ -309,7 +310,7 @@ def create_group():
 
         #Checks if the user already has a group with the same name
         if(group_exists(group_name,group_creator)):
-            eroor = 'User already has a group with an existing name'
+            error = 'User already has a group with an existing name'
             return render_template('home.html',error = error)
         else:
             #Query that inserts the new group into the database
@@ -321,6 +322,8 @@ def create_group():
             query = 'INSERT INTO BelongTo(username,groupName,groupCreator) VALUES (%s,%s,%s)'
             cursor.execute(query,(group_creator,group_name,group_creator))
             cursor.close()
+
+            return redirect('/home')
     else:
         error = 'Unable to create a group'
         return render_template('home.html',error=error)
@@ -373,15 +376,26 @@ def unfollow():
 
         #Query is used to delete the tuple that establishes the relationship
         query = 'DELETE FROM Follow WHERE follower=%s AND followee=%s'
+
         cursor.execute(query,(follower,followee))
         cursor.close()
-        return render_template('home.html')
+        return redirect('/home')
     else:
         error = 'Unable to unfollow user'
         return render_template('home.html',error = error)
 
 
 app.secret_key = 'some random key here. usually in env.'
+
+'''
+TO DO!!!!!!!!!!!!!!!
+- Fix Redirect Errors(Maybe use a javascript window alert)
+- Display Follow requests
+- Complete reactTo
+- Fix Image display
+- Fix Image reactions query
+- Fix Posting photos
+'''
 
 if __name__ == "__main__":
     app.run('127.0.0.1', 5000)
