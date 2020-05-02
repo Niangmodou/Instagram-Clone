@@ -15,8 +15,7 @@ app = Flask(__name__)
 
 app.debug = True
 
-#PART 3 -> Required Feature 1 and 2
-
+IMAGES_DIR = os.path.join(os.getcwd(), 'Photos')
 #Defining SALT for password hashing function
 SALT = 'CS3083'
 
@@ -29,6 +28,11 @@ connection = pymysql.connect(host='localhost',
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
 
+@app.route("/image/<image_name>", methods=["GET"])
+def image(image_name):
+    image_location = os.path.join(IMAGES_DIR, image_name)
+    if os.path.isfile(image_location):
+        return send_file(image_location, mimetype="image/jpg")
 
 #Define route for the root COMPLETED
 @app.route('/')
@@ -195,34 +199,34 @@ def home():
 def post_photo():
     cursor = connection.cursor()
     if(request.files):
+        #Retrieving poster information
         poster = session['username']
-        #Retrieving photo information
 
         #Retrieving the path of the folder
-        FOLDER = os.path.join(os.getcwd(), 'Photos')
         file = request.files.get('photo','')
         name = file.filename
-        print("Checkpoint 1")
-        filepath = os.path.join(FOLDER,name)
+        filepath = os.path.join(IMAGES_DIR,name)
         file.save(filepath)
-        print("Checkpoint 2")
+
+        #Retrieving photo information
         all_followers = request.form['allFollowers']
         caption = request.form['caption']
+
         #Retrieving Timestamp
         timestamp = get_time()
         if(all_followers == 'true'):
             all_followers = True
         else:
             all_followers = False
+
         #Query that inserts the new photo into the database
         query = 'INSERT INTO Photo (postingDate,filePath,allFollowers,caption,poster) \
-                 VALUES (%s,%s,%s,%s,%s,%s)'
-        cursor.execute(query,(timestamp,filePath,allFollowers,caption,poster))
-        print("Checkpoint 3")
+                 VALUES (%s,%s,%s,%s,%s)'
+        cursor.execute(query,(timestamp,filepath,all_followers,caption,poster))
+
         cursor.close()
         return redirect(url_for('home'))
     else:
-        print("error")
         error = 'Unable to upload Image'
         return render_template('home.html',error=error)
 
@@ -282,7 +286,7 @@ def manage_requests():
             query = 'DELETE FROM Follow WHERE follower=%s AND followee=%s'
             cursor.execute(query,(follower,followee))
             cursor.close()
-        return render_template('home.html')
+        return redirect('home')
     else:
         error = 'Unable to manage requests'
         return render_template('home.html',error = error)
@@ -356,12 +360,14 @@ def react_to():
         cursor.close()
         if(data):
             error = 'You have already reacted to this photo'
+            return render_template('home.html',error = error)
         else:
             #Query inserts a tuple into the reactTo table
             query = 'INSERT INTO ReactTo(username,pId,reactionTime,comment,emoji)'
             cursor.execute(query,(username,photo_id,timestamp,comment,emoji))
             cursor.close()
-            return render_template('home.html')
+
+            return redirect('/home')
     else:
         error = 'Unable to react to photo'
         return render_template('home.html',error = error)
@@ -394,7 +400,7 @@ TO DO!!!!!!!!!!!!!!!
 - Complete reactTo
 - Fix Image display
 - Fix Image reactions query
-- Fix Posting photos
+- Displaying photos
 '''
 
 if __name__ == "__main__":
