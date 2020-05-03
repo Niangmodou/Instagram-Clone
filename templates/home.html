@@ -7,6 +7,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
+
   <style type='text/css'>
     *{
       background-color: #292929;
@@ -70,6 +71,7 @@
     }
 
   </style>
+
   <body>
 
     <div class="pageContainer">
@@ -78,12 +80,13 @@
       <a href="/signOut">Logout</a>
       </div>
 
+                                <!-- Image Feed is dispalyed -->
       <div class="imageFeed">
         <h4>Images</h4>
         {% if images %}
           {% for image in images%}
           <div class="photoComponent">
-            <h3>@{{image.poster}} - {{image.firstName}} {{image.lastName}}</h3>
+            <h4>@{{image.poster}} - {{image.firstName}} {{image.lastName}}</h4>
             <img src="{{image.filePath}}" alt="Photo Id: {{image.pId}}"  width="150" height="200">
             <h6>{{image.caption}}</h6>
             <h6>{{image.postingDate}}</h6>
@@ -92,12 +95,19 @@
                                     {% endfor %}
             </h5>
             <h5><b>Reacted To:</b> {% for user in reacted_to%}
-                                    {{user.username}}: {{user.comment}},
+                                    {{user.username}}: {{user.comment}}, {{user.emoji}}
                                     {% endfor %}
             </h5>
             <h6>{{image.pId}}</h6>
 
-            </h4>
+            <!--- ReactTo a photo-->
+            <form action="/reactTo" method="POST">
+              <input type="hidden" name="pId" value="{{image.pId}}">
+              <input type="text" name="comment" placeholder="Enter Comment" value="">
+              <input type="text" name="emoji" placeholder="Enter Emoji" value=""> <br>
+              <input type="submit" name="React" value="React">
+            </form>
+
           </div>
           {% endfor %}
       {% else %}
@@ -133,7 +143,7 @@
           {% for request in requests%}
             <div class="requestComponent">
               <form class="" action="/manageRequests" method="post">
-                <h5>@ {{request.follower}}</h5> <br>
+                <h5>@ {{request.followee}}</h5> <br>
                 Accept Follow Request:
                 <input type="radio" name="followRequest" value="true">
                 <input type="radio" name="followRequest" value="false">
@@ -143,6 +153,7 @@
             </div>
           {% endfor %}
         </form>
+
       </div>
 
       <div class="post">

@@ -15,7 +15,9 @@ app = Flask(__name__)
 
 app.debug = True
 
+#Folder repository to store images
 IMAGES_DIR = os.path.join(os.getcwd(), 'Photos')
+
 #Defining SALT for password hashing function
 SALT = 'CS3083'
 
@@ -27,12 +29,6 @@ connection = pymysql.connect(host='localhost',
                              db='Finstagram',
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
-
-@app.route("/image/<image_name>", methods=["GET"])
-def image(image_name):
-    image_location = os.path.join(IMAGES_DIR, image_name)
-    if os.path.isfile(image_location):
-        return send_file(image_location, mimetype="image/jpg")
 
 #Define route for the root COMPLETED
 @app.route('/')
@@ -165,10 +161,10 @@ def home():
              UNION (SELECT * FROM userPhotos) ORDER BY postingDate DESC'
     cursor.execute(query)
 
-    #Query to get the Person information
-    query = 'SELECT * FROM Person INNER JOIN ex ON ex.poster = Person.username'
-    cursor.execute(query)
 
+    #Query to get the Person information
+    query = 'SELECT * FROM Person INNER JOIN query ON query.poster = Person.username'
+    cursor.execute(query)
     data = cursor.fetchall()
 
     #Dropping Views
@@ -186,6 +182,7 @@ def home():
     cursor.execute(reacted_query)
     reacted = cursor.fetchall()
     cursor.close()
+
     return render_template('home.html',
                            username= session['username'],
                            images= data,
@@ -194,7 +191,7 @@ def home():
 
 #------------------------------------------------------------------------------------------------------------------------------------------
 
-#Define route to post a photo (Required Feature 3)
+#Define route to post a photo (Required Feature 3) COMPLETED
 @app.route('/postPhoto', methods=['POST'])
 def post_photo():
     cursor = connection.cursor()
@@ -230,8 +227,15 @@ def post_photo():
         error = 'Unable to upload Image'
         return render_template('home.html',error=error)
 
+#Helper function to save images to Photos directory
+@app.route("/image/<image_name>", methods=["GET"])
+def image(image_name):
+    location = os.path.join(IMAGES_DIR, image_name)
+    if os.path.isfile(location):
+        return send_file(location, mimetype="image/jpg")
 
-#Define route to follow a person (Required Feature 4)
+
+#Define route to follow a person (Required Feature 4) COMPLETED
 @app.route('/followUser', methods=['POST'])
 def follow():
     cursor = connection.cursor()
@@ -252,17 +256,19 @@ def follow():
         return render_template('home.html',error = error)
 
 #Define route to view all follow requests
-@app.route('/followRequests', methods=['GET'])
+@app.route('/followRequests',methods=['GET'])
 def follow_requests():
     cursor = connection.cursor()
+    print("hi")
     if(request.form):
         follower = session['username']
 
         #Query retrieves all the follow requests that have not been accepted
-        query = 'SELECT * FROM Follow WHERE follower=%s AND followStatus=0'
+        query = 'SELECT * FROM Follow WHERE followee=%s AND followStatus=0'
         cursor.execute(query,(follower))
         data = cursor.fetchall()
         cursor.close()
+        print("hi")
         print(data)
         return render_template('home.html',requests = data)
     else:
@@ -343,7 +349,7 @@ def group_exists(group_name,group_creator):
     else:
         return False
 
-#Define route to react to a photo (Extra Feature 1)
+#Define route to react to a photo (Extra Feature 1) COMPLETED
 @app.route('/reactTo',methods=['POST'])
 def react_to():
     cursor = connection.cursor()
@@ -357,13 +363,13 @@ def react_to():
         query = 'SELECT * FROM ReactTo WHERE username=%s AND pId=%s'
         cursor.execute(query,(username,photo_id))
         data = cursor.fetchone()
-        cursor.close()
         if(data):
             error = 'You have already reacted to this photo'
             return render_template('home.html',error = error)
         else:
             #Query inserts a tuple into the reactTo table
-            query = 'INSERT INTO ReactTo(username,pId,reactionTime,comment,emoji)'
+            query = 'INSERT INTO ReactTo(username,pId,reactionTime,comment,emoji) \
+                     VALUES (%s,%s,%s,%s,%s)'
             cursor.execute(query,(username,photo_id,timestamp,comment,emoji))
             cursor.close()
 
@@ -372,7 +378,7 @@ def react_to():
         error = 'Unable to react to photo'
         return render_template('home.html',error = error)
 
-#Define route to unfollow a user (Extra Feature 2)
+#Define route to unfollow a user (Extra Feature 2) COMPLETED
 @app.route('/unfollow', methods=['POST'])
 def unfollow():
     cursor = connection.cursor()
@@ -397,10 +403,8 @@ app.secret_key = 'some random key here. usually in env.'
 TO DO!!!!!!!!!!!!!!!
 - Fix Redirect Errors(Maybe use a javascript window alert)
 - Display Follow requests
-- Complete reactTo
 - Fix Image display
 - Fix Image reactions query
-- Displaying photos
 '''
 
 if __name__ == "__main__":
