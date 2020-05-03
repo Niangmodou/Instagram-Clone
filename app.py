@@ -161,33 +161,31 @@ def home():
              UNION (SELECT * FROM userPhotos) ORDER BY postingDate DESC'
     cursor.execute(query)
 
-
     #Query to get the Person information
     query = 'SELECT * FROM Person INNER JOIN query ON query.poster = Person.username'
     cursor.execute(query)
     data = cursor.fetchall()
 
-    #Dropping Views
-    query = 'DROP VIEW followingPhotos, userPhotos, sharedPhotos,query'
-    cursor.execute(query)
-
     #Query to retrieve all users that are tagged in the photos
-    tagged_query = 'SELECT * FROM Tag NATURAL JOIN Person NATURAL JOIN \
-                    Photo WHERE tagStatus = TRUE'
+    tagged_query = 'SELECT * FROM query NATURAL JOIN Tag WHERE tagStatus = TRUE'
     cursor.execute(tagged_query)
     tagged = cursor.fetchall()
 
     #Query to retrieve all users that have reacted to the photos
-    reacted_query = 'SELECT username, emoji, comment FROM ReactTo'
+    reacted_query = 'SELECT username, emoji, comment FROM ReactTo NATURAL JOIN query'
     cursor.execute(reacted_query)
     reacted = cursor.fetchall()
+
+    #Dropping Views
+    query = 'DROP VIEW followingPhotos, userPhotos, sharedPhotos,query'
+    cursor.execute(query)
     cursor.close()
 
     return render_template('home.html',
                            username= session['username'],
                            images= data,
                            tagged= tagged,
-                           reacted_to = reacted)
+                           reacted_to= reacted)
 
 #------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -256,32 +254,28 @@ def follow():
         return render_template('home.html',error = error)
 
 #Define route to view all follow requests
-@app.route('/followRequests',methods=['GET'])
+@app.route('/followRequests')
 def follow_requests():
     cursor = connection.cursor()
-    print("hi")
-    if(request.form):
-        follower = session['username']
 
-        #Query retrieves all the follow requests that have not been accepted
-        query = 'SELECT * FROM Follow WHERE followee=%s AND followStatus=0'
-        cursor.execute(query,(follower))
-        data = cursor.fetchall()
-        cursor.close()
-        print("hi")
-        print(data)
-        return render_template('home.html',requests = data)
-    else:
-        error = 'Unable to retrieve follow requests'
-        return render_template('home.html',error = error)
+    #Retrieving current user
+    follower = session['username']
+
+    #Query retrieves all the follow requests that have not been accepted
+    query = 'SELECT * FROM Follow WHERE followee=%s AND followStatus=0'
+    cursor.execute(query,(follower))
+    data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('requests.html',requests= data)
 
 #Define route to manage requests
 @app.route('/manageRequests',methods=['POST'])
 def manage_requests():
     cursor = connection.cursor()
     if(request.form):
-        follower = session['username']
-        followee = request.form['followee']
+        followee = session['username']
+        follower = request.form['follower']
         status = request.form['followRequest']
 
         if(status == 'true'):
@@ -359,6 +353,7 @@ def react_to():
         comment = request.form['comment']
         emoji = request.form['emoji']
         timestamp = get_time()
+
         #Check if user already reacted to this photo
         query = 'SELECT * FROM ReactTo WHERE username=%s AND pId=%s'
         cursor.execute(query,(username,photo_id))

@@ -139,20 +139,7 @@
           <input type="submit" value="Follow">
         </form>
 
-        <form action="/followRequests" method="GET">
-          {% for request in requests%}
-            <div class="requestComponent">
-              <form class="" action="/manageRequests" method="post">
-                <h5>@ {{request.followee}}</h5> <br>
-                Accept Follow Request:
-                <input type="radio" name="followRequest" value="true">
-                <input type="radio" name="followRequest" value="false">
-                <input type="submit" name="followRequest" value="submit">
-              </form>
-              <br>
-            </div>
-          {% endfor %}
-        </form>
+        <a href="/followRequests">View Follow Requests</a>
 
       </div>
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+
+  <style type='text/css'>
+    *{
+      background-color: #292929;
+      color: white;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+
+  <body>
+    {% if requests %}
+        {% for request in requests%}
+          <div class="requestComponent">
+            <form class="" action="/manageRequests" method="post">
+              <h3>@ {{request.follower}}</h3>
+              Accept Follow Request: <br>
+              <input type="hidden" name="follower" value="{{request.follower}}">
+              Accept: <input type="radio" name="followRequest" value="true"> <br>
+              Deny: <input type="radio" name="followRequest" value="false"> <br>
+              <input type="submit" name="followRequest" value="submit">
+            </form>
+            <br>
+          </div>
+        {% endfor %}
+      {% else %}
+        <h4>You have no follow requests</h4>
+    {% endif %}
+    <a href="/home">Home</a>
+  </body>
+</html>
