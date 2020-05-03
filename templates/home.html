@@ -32,13 +32,13 @@
       border-style: solid;
       border-color: blue;
       grid-column: 1/ span 12;
-      grid-row: 1/span 1;
+      grid-row: 1/span 2;
     }
     .imageFeed {
       border-style: solid;
       border-color: yellow;
       grid-column: 2 / span 5;
-      grid-row: 2 / 12;
+      grid-row: 3 / 12;
     }
     .followRequests {
       border-style: solid;
@@ -50,19 +50,13 @@
       border-style: solid;
       border-color: #ff3399;
       grid-column: 8 / span 4;
-      grid-row: 6 /span 2;
-    }
-    .unfollow{
-      border-style: solid;
-      border-color: green;
-      grid-column: 8 / span 4;
-      grid-row: 2 /span 1;
+      grid-row: 6 /span 3;
     }
     .post {
       border-style: solid;
       border-color: aqua;
       grid-column: 8/ span 4;
-      grid-row: 8/ span 4;
+      grid-row: 9/ span 4;
     }
 
     .signOut{
@@ -91,7 +85,9 @@
             <h6>{{image.caption}}</h6>
             <h6>{{image.postingDate}}</h6>
             <h5><b>Tagged in:</b>  {% for user in tagged %}
-                                    {{user.username}},
+                                      {% if image.pId == user.pId %}
+                                        {{user.username}},
+                                      {% endif %}
                                     {% endfor %}
             </h5>
             <h5><b>Reacted To:</b> {% for user in reacted_to%}
@@ -115,14 +111,9 @@
       {% endif %}
       </div>
 
-      <div class="unfollow">
-        <form class="" action="/unfollow" method="POST">
-          <input type="text" name="followee" placeholder="Enter a user to unfollow">
-          <input type="submit" value="Unfollow">
-        </form>
-      </div>
 
       <div class="groups">
+        <h4>Create a Group</h4>
         <form class="" action="/createGroup" method="POST">
           Group Name:
           <input type="text" name="groupName" placeholder="Enter Group Name..." required> <br>
@@ -134,12 +125,18 @@
       </div>
 
       <div class="followRequests">
+
+        <h4>Follow/Unfollow a User</h4>
         <form class="" action="/followUser" method="POST">
           <input type="text" name="followee" placeholder="Enter a user to follow">
           <input type="submit" value="Follow">
         </form>
-
         <a href="/followRequests">View Follow Requests</a>
+
+        <form class="" action="/unfollow" method="POST">
+          <input type="text" name="followee" placeholder="Enter a user to unfollow">
+          <input type="submit" value="Unfollow">
+        </form>
 
       </div>
 
@@ -147,8 +144,6 @@
         <h4>Post a Photo</h4>
 
         <form action="/postPhoto" method="POST" enctype="multipart/form-data">
-          Location:
-          <input type="text" name="location" placeholder="Enter Location..." required> <br>
           Caption:
           <input type="text" name="caption" placeholder="Enter Caption..." required> <br>
           Share with all Followers: <br>

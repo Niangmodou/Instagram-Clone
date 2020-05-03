@@ -136,30 +136,22 @@ def home():
     cursor = connection.cursor()
     timestamp = get_time()
 
-    #Query to get photos from the people the user is following
-    following = 'CREATE VIEW followingPhotos AS \
-                (SELECT DISTINCT pId, postingDate, filePath, caption, poster \
-                FROM Photo JOIN Follow ON(poster=followee) \
-                WHERE follower= %s AND followStatus=TRUE)'
-    cursor.execute(following, (username))
-
-    #Query to get photos that are shared with the user
-    shared_with = 'CREATE VIEW sharedPhotos AS \
-                  (SELECT DISTINCT pID, postingDate, filePath, caption, poster \
-                  FROM SharedWith NATURAL JOIN Photo WHERE (%s,groupName) \
-                  IN (SELECT username,groupName FROM BelongTo))'
-    cursor.execute(shared_with, (username))
-
-    #Query to get photos that the user has posted
-    posted = 'CREATE VIEW userPhotos AS \
-             (SELECT DISTINCT pId, postingDate, filePath, caption, poster \
-             FROM Photo WHERE poster = %s)'
-    cursor.execute(posted, (username))
-
-    #Query that gets all the distinct photos a user can view
-    query = 'CREATE VIEW query AS SELECT * FROM followingPhotos UNION (SELECT * FROM sharedPhotos)\
-             UNION (SELECT * FROM userPhotos) ORDER BY postingDate DESC'
-    cursor.execute(query)
+    query = 'CREATE VIEW query AS \
+             SELECT pId, poster, postingDate, filePath FROM Photo \
+             WHERE (pId, poster, postingDate, filePath) IN \
+                (SELECT pId, poster, postingDate, filePath FROM Photo WHERE photo.poster = %s)\
+                 OR (pId, poster, postingDate, filePath) IN \
+             (SELECT pId, poster, postingDate, filePath FROM \
+                Photo JOIN follow ON photo.poster = follow.followee \
+                WHERE follow.follower = %s AND follow.followStatus = True \
+                    AND photo.allFollowers = True) OR (pId, poster, postingDate, filePath) IN \
+             (SELECT DISTINCT p.pId, p.poster, p.postingDate, p.filePath FROM Photo AS p \
+                NATURAL JOIN SharedWith NATURAL JOIN BelongTo WHERE BelongTo.username = %s \
+                    AND BelongTo.groupName IN \
+             (SELECT BelongTo.groupName FROM Photo JOIN BelongTo \
+                WHERE p.poster = BelongTo.username)) \
+             ORDER BY postingDate DESC'
+    cursor.execute(query,(username,username,username))
 
     #Query to get the Person information
     query = 'SELECT * FROM Person INNER JOIN query ON query.poster = Person.username'
@@ -167,17 +159,18 @@ def home():
     data = cursor.fetchall()
 
     #Query to retrieve all users that are tagged in the photos
-    tagged_query = 'SELECT * FROM query NATURAL JOIN Tag WHERE tagStatus = TRUE'
+    tagged_query = 'SELECT * FROM Tag JOIN Photo ON (Tag.pId = Photo.pId) NATURAL JOIN Person WHERE tagStatus = 1'
     cursor.execute(tagged_query)
     tagged = cursor.fetchall()
 
     #Query to retrieve all users that have reacted to the photos
-    reacted_query = 'SELECT username, emoji, comment FROM ReactTo NATURAL JOIN query'
+    reacted_query = 'SELECT username, emoji, comment FROM ReactTo JOIN query USING (pID)'
     cursor.execute(reacted_query)
     reacted = cursor.fetchall()
 
     #Dropping Views
-    query = 'DROP VIEW followingPhotos, userPhotos, sharedPhotos,query'
+    #query = 'DROP VIEW followingPhotos, userPhotos, sharedPhotos,query'
+    query = 'DROP VIEW query'
     cursor.execute(query)
     cursor.close()
 
@@ -186,8 +179,6 @@ def home():
                            images= data,
                            tagged= tagged,
                            reacted_to= reacted)
-
-#------------------------------------------------------------------------------------------------------------------------------------------
 
 #Define route to post a photo (Required Feature 3) COMPLETED
 @app.route('/postPhoto', methods=['POST'])
@@ -260,7 +251,6 @@ def follow_requests():
 
     #Retrieving current user
     follower = session['username']
-
     #Query retrieves all the follow requests that have not been accepted
     query = 'SELECT * FROM Follow WHERE followee=%s AND followStatus=0'
     cursor.execute(query,(follower))
@@ -393,14 +383,6 @@ def unfollow():
 
 
 app.secret_key = 'some random key here. usually in env.'
-
-'''
-TO DO!!!!!!!!!!!!!!!
-- Fix Redirect Errors(Maybe use a javascript window alert)
-- Display Follow requests
-- Fix Image display
-- Fix Image reactions query
-'''
 
 if __name__ == "__main__":
     app.run('127.0.0.1', 5000)
