@@ -136,6 +136,10 @@ def home():
     cursor = connection.cursor()
     timestamp = get_time()
 
+    #Query to retrieve all the photos a user can view:
+        #Photos they have posted
+        #Photos that have been shared with them
+        #Photos of the people they follow
     query = 'CREATE VIEW query AS \
              SELECT pId, poster, postingDate, filePath FROM Photo \
              WHERE (pId, poster, postingDate, filePath) IN \
@@ -153,10 +157,12 @@ def home():
              ORDER BY postingDate DESC'
     cursor.execute(query,(username,username,username))
 
-    #Query to get the Person information
+    #Query to get the Person information alongside the photos from the query
     query = 'SELECT * FROM Person INNER JOIN query ON query.poster = Person.username'
     cursor.execute(query)
     data = cursor.fetchall()
+
+    print(data)
 
     #Query to retrieve all users that are tagged in the photos
     tagged_query = 'SELECT * FROM Tag JOIN Photo ON (Tag.pId = Photo.pId) NATURAL JOIN Person WHERE tagStatus = 1'

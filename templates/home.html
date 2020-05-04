@@ -85,9 +85,7 @@
             <h6>{{image.caption}}</h6>
             <h6>{{image.postingDate}}</h6>
             <h5><b>Tagged in:</b>  {% for user in tagged %}
-                                      {% if image.pId == user.pId %}
                                         {{user.username}},
-                                      {% endif %}
                                     {% endfor %}
             </h5>
             <h5><b>Reacted To:</b> {% for user in reacted_to%}
@@ -152,6 +150,7 @@
           <input type="file" name="photo" accept= "image/*/" required> <br>
           <input type="submit" value = Post /> <br>
         </form>
+
       </div>
     </div>
 
