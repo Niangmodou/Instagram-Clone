@@ -13,8 +13,6 @@ import datetime as dt
 #Initialize the app from Flask
 app = Flask(__name__)
 
-app.debug = True
-
 #Folder repository to store images
 IMAGES_DIR = os.path.join(os.getcwd(), 'Photos')
 
@@ -39,7 +37,6 @@ def index():
 @app.route('/signOut')
 def logout():
     session.pop('username')
-    #session['username'].pop()
     return redirect('/')
 
 #Define route for login page COMPLETED
@@ -114,6 +111,7 @@ def register_auth():
         error = 'Unknown error has occured'
         return render_template('register.html',error= error)
 
+#Helper function to determine if there currently exists a user with the same credentials
 def user_exists(username,email):
     cursor = connection.cursor()
     query = 'SELECT * FROM PERSON WHERE username = %s and email=%s'
@@ -162,8 +160,6 @@ def home():
     cursor.execute(query)
     data = cursor.fetchall()
 
-    print(data)
-
     #Query to retrieve all users that are tagged in the photos
     tagged_query = 'SELECT * FROM Tag JOIN Photo ON (Tag.pId = Photo.pId) NATURAL JOIN Person WHERE tagStatus = 1'
     cursor.execute(tagged_query)
@@ -175,7 +171,6 @@ def home():
     reacted = cursor.fetchall()
 
     #Dropping Views
-    #query = 'DROP VIEW followingPhotos, userPhotos, sharedPhotos,query'
     query = 'DROP VIEW query'
     cursor.execute(query)
     cursor.close()
@@ -224,10 +219,10 @@ def post_photo():
 
 #Helper function to save images to Photos directory
 @app.route("/image/<image_name>", methods=["GET"])
-def image(image_name):
-    location = os.path.join(IMAGES_DIR, image_name)
-    if os.path.isfile(location):
-        return send_file(location, mimetype="image/jpg")
+def image(name):
+    img_loc = os.path.join(IMAGES_DIR, name)
+    if os.path.isfile(img_loc):
+        return send_file(img_loc, mimetype="image/jpg")
 
 
 #Define route to follow a person (Required Feature 4) COMPLETED
@@ -257,6 +252,7 @@ def follow_requests():
 
     #Retrieving current user
     follower = session['username']
+
     #Query retrieves all the follow requests that have not been accepted
     query = 'SELECT * FROM Follow WHERE followee=%s AND followStatus=0'
     cursor.execute(query,(follower))
@@ -270,10 +266,12 @@ def follow_requests():
 def manage_requests():
     cursor = connection.cursor()
     if(request.form):
+        #Retrieve follow information
         followee = session['username']
         follower = request.form['follower']
         status = request.form['followRequest']
 
+        #Updates database based on whether the user accepted or denied the request
         if(status == 'true'):
             query = 'UPDATE Follow SET followStatus=True WHERE follower=%s AND followee=%s'
             cursor.execute(query,(follower,followee))
@@ -287,6 +285,7 @@ def manage_requests():
         error = 'Unable to manage requests'
         return render_template('home.html',error = error)
 
+#Helper function to determine whether theyre exists a follower tuple within DB
 def follow_user(follower,followee):
     cursor = connection.cursor()
     query = 'SELECT * FROM Follow WHERE follower=%s and followee=%s'
@@ -301,8 +300,8 @@ def follow_user(follower,followee):
 #Define route to create a friend group (Required Feature 5) COMPLETED
 @app.route('/createGroup', methods=['POST'])
 def create_group():
+    cursor = connection.cursor()
     if(request.form):
-        cursor = connection.cursor()
         #Retrieving Group information
         group_creator = session['username']
         group_name = request.form['groupName']
@@ -344,6 +343,7 @@ def group_exists(group_name,group_creator):
 def react_to():
     cursor = connection.cursor()
     if(request.form):
+        #Retrieving information needed for ReactTo table
         username = session['username']
         photo_id = request.form['pId']
         comment = request.form['comment']
@@ -374,6 +374,7 @@ def react_to():
 def unfollow():
     cursor = connection.cursor()
     if(request.form):
+        #Retrieving information needed to unfollow a user
         follower = session['username']
         followee = request.form['followee']
 

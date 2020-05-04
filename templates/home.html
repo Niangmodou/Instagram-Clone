@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <title>Finstagram</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
 
   <style type='text/css'>
@@ -74,9 +74,11 @@
       <a href="/signOut">Logout</a>
       </div>
 
-                                <!-- Image Feed is dispalyed -->
+                                    <!-- Image Feed is dispalyed -->
       <div class="imageFeed">
+
         <h4>Images</h4>
+        
         {% if images %}
           {% for image in images%}
           <div class="photoComponent">
@@ -94,7 +96,7 @@
             </h5>
             <h6>{{image.pId}}</h6>
 
-            <!--- ReactTo a photo-->
+                                      <!--- Reacting to a photo-->
             <form action="/reactTo" method="POST">
               <input type="hidden" name="pId" value="{{image.pId}}">
               <input type="text" name="comment" placeholder="Enter Comment" value="">
@@ -109,9 +111,11 @@
       {% endif %}
       </div>
 
-
+                                      <!-- Creating a new Group -->
       <div class="groups">
+
         <h4>Create a Group</h4>
+
         <form class="" action="/createGroup" method="POST">
           Group Name:
           <input type="text" name="groupName" placeholder="Enter Group Name..." required> <br>
@@ -121,10 +125,11 @@
         </form>
 
       </div>
-
+                                <!-- Following/Unfollowing a user -->
       <div class="followRequests">
 
         <h4>Follow/Unfollow a User</h4>
+
         <form class="" action="/followUser" method="POST">
           <input type="text" name="followee" placeholder="Enter a user to follow">
           <input type="submit" value="Follow">
@@ -138,7 +143,9 @@
 
       </div>
 
+                                <!-- Posting a new phot -->
       <div class="post">
+
         <h4>Post a Photo</h4>
 
         <form action="/postPhoto" method="POST" enctype="multipart/form-data">
@@ -152,6 +159,8 @@
         </form>
 
       </div>
+
+
     </div>
 
   </body>

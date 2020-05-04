@@ -1,4 +1,3 @@
-
 CREATE TABLE Person (
         username VARCHAR(32),
         password VARCHAR(64),
@@ -60,7 +59,7 @@ CREATE TABLE SharedWith (
 CREATE TABLE BelongTo
         username VARCHAR(32),
         groupName VARCHAR(32),
-	groupCreator VARCHAR(32),
+	      groupCreator VARCHAR(32),
         PRIMARY KEY (username, groupName, groupCreator),
         FOREIGN KEY (username) REFERENCES Person (username),
         FOREIGN KEY (groupName, groupCreator) REFERENCES FriendGroup (groupName, groupCreator)
