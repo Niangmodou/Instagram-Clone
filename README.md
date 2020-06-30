@@ -1,3 +1,8 @@
 # Instagram-Clone-Finsta
-This web app is an Instagram clone that allows users to follow other users within the database. \n
-Users can then post images, create friend groups, limit who see their posts, and they can also like and share photos
+This web app is an Instagram clone that allows users to create an account and interact with other users in the database <br>
+Users can then: <br>
+- Follow/unfollow other users
+- Post photos
+- Create friend groups
+- Limit who see their posts
+- Like and comment on photos
