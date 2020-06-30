@@ -1,6 +1,5 @@
 '''
 Finstagram
-Intro. to Database Systems Spring 2020
 MADE WITH LOVE BY MODOU NIANG
 '''
 from flask import Flask, render_template, request, session, url_for, redirect
@@ -12,12 +11,13 @@ import datetime as dt
 
 #Initialize the app from Flask
 app = Flask(__name__)
+app.debug = True
 
 #Folder repository to store images
 IMAGES_DIR = os.path.join(os.getcwd(), 'Photos')
 
 #Defining SALT for password hashing function
-SALT = 'CS3083'
+SALT = 'COOLMODOU'
 
 #Set up connection to MySQL Database
 connection = pymysql.connect(host='localhost',
